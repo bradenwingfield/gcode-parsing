@@ -2,20 +2,29 @@ def extract_data(file_path, slicer):
     with open(file_path, 'r') as open_file:
         file_data = open_file.readlines()
 
+    # Set keyword (same for each slicer)
     bed_temperature_keyword = "M190"
     hotend_temperature_keyword = "M109"
 
+    # Set keyword based on slicer
     if slicer == "Cura":
-        time_keyword = ";TIME"
+        time_keyword = ";TIME_ELAPSED:"
         filament_used_keyword = ";Filament used: "
     else: 
         time_keyword = "; estimated printing time (normal mode) = "
         filament_used_keyword = "; filament used [mm] = "
 
+    # Initialize data
+    bed_temperature = "No Data"
+    hotend_temperature = "No Data"
+    time = "No Data"
+    filament_used = "No Data"
+
+    # this will go through every line of the file: O(n)
     for row in file_data:
-        if row.find(bed_temperature_keyword) != -1:
+        if row.find(bed_temperature_keyword) != -1 and bed_temperature == "No Data":
              bed_temperature = row.split('S')[1].split()[0]
-        if row.find(hotend_temperature_keyword) != -1:
+        if row.find(hotend_temperature_keyword) != -1 and hotend_temperature == "No Data":
              hotend_temperature = row.split('S')[1].split()[0]
 
         if slicer == "Cura":
@@ -35,11 +44,12 @@ def extract_data(file_path, slicer):
     print(f"Filament Used: {filament_used} mm")
     
 
-#use the provided "3DBenchy.gcode" file
+#Files provided in the directory
 file_path = input("Gcode File Path: ")
 
 while True:
     slicer = input("Slicer Software (Cura or Prusa): ")
+    
     if slicer == "Cura" or slicer == "Prusa":
         extract_data(file_path, slicer)
         break
